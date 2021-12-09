@@ -31,9 +31,9 @@ class NoticeCreateSerializer(serializers.ModelSerializer):
             notice_url=data.get("link", None),
         )
         if data["pin"] == "true":
-            notice.ping = True
+            notice.pin = True
         elif data["pin"] == "false":
-            notice.ping = False
+            notice.pin = False
         notice.save()
         # FirebaseAPI.send_entity_message(data, self.context['notices'])
         return notice
