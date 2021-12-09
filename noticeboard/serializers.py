@@ -1,33 +1,43 @@
 from datetime import date
 from rest_framework import serializers
+from rest_framework.exceptions import PermissionDenied
 from .models import NoticeBoard
+from authentication.models import UserProfile
 
 
-class NoticeBoardSerializer(serializers.ModelSerializer):
+class NoticeGetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NoticeBoard
+        fields = "__all__"
+
+
+class NoticeCreateSerializer(serializers.ModelSerializer):
+    def validate(self, attrs):
+        request = self.context["request"]
+        # pylint: disable=no-member
+        profile = UserProfile.objects.get(user=request.user)
+        print(profile.get_workshop_privileges())
+        if profile.get_workshop_privileges():
+            raise PermissionDenied("You are not authorized to create notices")
+        return attrs
+
     def save(self, **kwargs):
         data = self.validated_data
+        # pylint: disable=no-member
         notice = NoticeBoard.objects.create(
-            name=data["name"],
-            date=data["date"],
+            title=data["title"],
+            description=data.get("description", ""),
+            date=data.get("date", None),
+            notice_url=data.get("link", None),
         )
-        notice.description = data["description"]
-        notice.link = data["link"]
-        if data["ping"] == "true":
+        if data["pin"] == "true":
             notice.ping = True
-        elif data["ping"] == "false":
+        elif data["pin"] == "false":
             notice.ping = False
         notice.save()
+        # FirebaseAPI.send_entity_message(data, self.context['notices'])
         return notice
 
     class Meta:
         model = NoticeBoard
-        fields = (
-            "id",
-            "name",
-            "description",
-            "date",
-            "link",
-            "ping",
-            "upvote",
-            "downvote",
-        )
+        fields = ("title", "description", "date", "notice_url")

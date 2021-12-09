@@ -1,6 +1,6 @@
 from rest_framework import generics
 from .models import NoticeBoard
-from .serializers import NoticeBoardSerializer
+from .serializers import NoticeGetSerializer, NoticeCreateSerializer
 from rest_framework import permissions
 from rest_framework import status
 from rest_framework.response import Response
@@ -17,7 +17,7 @@ class NoticeGetView(generics.ListAPIView):
         .order_by("-offset")
     )
     permission_classes = (permissions.AllowAny,)
-    serializer_class = NoticeBoardSerializer
+    serializer_class = NoticeGetSerializer
 
 
 class NoticeVoteView(generics.GenericAPIView):
@@ -27,7 +27,7 @@ class NoticeVoteView(generics.GenericAPIView):
 
     queryset = NoticeBoard.objects.all()
     permission_classes = (permissions.AllowAny,)
-    serializer_class = NoticeBoardSerializer
+    serializer_class = NoticeCreateSerializer
 
     def put(self, request, pk):
         try:
@@ -53,12 +53,12 @@ class NoticeCreateView(generics.GenericAPIView):
 
     queryset = NoticeBoard.objects.all()
     permission_classes = (permissions.AllowAny,)
-    serializer_class = NoticeBoardSerializer
+    serializer_class = NoticeGetSerializer
 
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            notice = serializer.save()
+            serializer.save()
             return Response(
                 {"Message": "Created successfully"}, status=status.HTTP_200_OK
             )
@@ -74,26 +74,28 @@ class NoticeUpdateView(generics.GenericAPIView):
     """
 
     permission_classes = (permissions.AllowAny,)
-    serializer_class = NoticeBoardSerializer
+    serializer_class = NoticeGetSerializer
     queryset = NoticeBoard.objects.all()
 
     def put(self, request, pk):
         try:
             notice = self.queryset.get(id=pk)
             for key in request.data:
-                if key == "name":
-                    notice.name = request.data["name"]
+                if key == "title":
+                    notice.name = request.data["title"]
                 if key == "description":
                     notice.description = request.data["description"]
                 if key == "date":
                     notice.date = request.data["date"]
-                if key == "ping":
-                    if request.data["ping"] == "true":
-                        notice.ping = True
-                    elif request.data["ping"] == "false":
-                        notice.ping = False
+                if key == "notice_url":
+                    notice.date = request.data["notice_url"]
+                if key == "pin":
+                    if request.data["pin"] == "true":
+                        notice.pin = True
+                    elif request.data["pin"] == "false":
+                        notice.pin = False
 
-                notice.save()
+            notice.save()
             return Response(
                 {"Message": "Updated successfully"}, status=status.HTTP_200_OK
             )
