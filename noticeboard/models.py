@@ -11,4 +11,4 @@ class NoticeBoard(models.Model):
     downvote = models.IntegerField(default=0)
 
     def __str__(self):
-        return self.name + " - " + self.description
+        return self.title + " - " + self.description
