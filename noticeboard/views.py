@@ -52,7 +52,7 @@ class NoticeCreateView(generics.CreateAPIView):
     """
 
     queryset = NoticeBoard.objects.all()
-    permission_classes = AllowAnyNoticeBoardHead
+    permission_classes = (permissions.IsAuthenticated, AllowAnyNoticeBoardHead)
     serializer_class = NoticeDetailSerializer
 
 
@@ -61,6 +61,6 @@ class NoticeUpdateView(generics.RetrieveUpdateDestroyAPIView):
     Update and Delete a Notice
     """
 
-    permission_classes = AllowAnyNoticeBoardHead
+    permission_classes = (permissions.IsAuthenticated, AllowAnyNoticeBoardHead)
     serializer_class = NoticeDetailSerializer
     queryset = NoticeBoard.objects.all()
