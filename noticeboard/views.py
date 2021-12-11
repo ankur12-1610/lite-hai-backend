@@ -1,10 +1,10 @@
 from rest_framework import generics
 from .models import NoticeBoard
-from .serializers import NoticeGetSerializer, NoticeCreateSerializer
+from .serializers import NoticeGetSerializer, NoticeCreateSerializer, NoticeDetailSerializer
 from rest_framework import permissions
 from rest_framework import status
 from rest_framework.response import Response
-
+from .permissions import AllowAnyNoticeBoardHead
 
 class NoticeGetView(generics.ListAPIView):
     """
@@ -17,7 +17,7 @@ class NoticeGetView(generics.ListAPIView):
         .order_by("-offset")
     )
     permission_classes = (permissions.AllowAny)
-    serializer_class = NoticeGetSerializer
+    serializer_class = NoticeDetailSerializer
 
 
 class NoticeVoteView(generics.GenericAPIView):
@@ -27,7 +27,7 @@ class NoticeVoteView(generics.GenericAPIView):
 
     queryset = NoticeBoard.objects.all()
     permission_classes = (permissions.IsAuthenticated)
-    serializer_class = NoticeCreateSerializer
+    serializer_class = NoticeCreateSerializer  #TODO: Add appropriate serializer we are not using whole table of notice here,
 
     def put(self, request, pk):
         try:
@@ -52,8 +52,8 @@ class NoticeCreateView(generics.CreateAPIView):
     """
 
     queryset = NoticeBoard.objects.all()
-    permission_classes = (permissions.AllowAny,)
-    serializer_class = NoticeGetSerializer
+    permission_classes = AllowAnyNoticeBoardHead
+    serializer_class = NoticeDetailSerializer
 
 
 class NoticeUpdateView(generics.RetrieveUpdateDestroyAPIView):
@@ -61,6 +61,6 @@ class NoticeUpdateView(generics.RetrieveUpdateDestroyAPIView):
     Update and Delete a Notice
     """
 
-    permission_classes = (permissions.AllowAny,)
-    serializer_class = NoticeGetSerializer
+    permission_classes = AllowAnyNoticeBoardHead
+    serializer_class = NoticeDetailSerializer
     queryset = NoticeBoard.objects.all()
